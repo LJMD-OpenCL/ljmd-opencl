@@ -179,33 +179,12 @@ void PrintDevice(cl_device_id device)
   CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(buf_uint), &buf_uint, NULL));
   printf("\tMax clock  = %u MHz \n", (unsigned int)buf_uint);
   clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(cl_ulong), &buf_uint, NULL);
-  /*printf("\tMax Work Group Size: %d\n", buf_uint);
+  printf("\tMax Work Group Size: %d\n", buf_uint);
   clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(buf_uint), &buf_uint, NULL);
   printf("\tMax Work Item Size: %d\n", (unsigned int)buf_uint);
   CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(buf_uint), &buf_uint, NULL));
-  printf("\tNumber of parallel compute cores: %d\n", (unsigned int)buf_uint);*/
+  printf("\tNumber of parallel compute cores: %d\n", (unsigned int)buf_uint);
 
-}
-
-
-/* Calculates the maximum number of threads for a given device (maximun with good behaviour) */
-/* efposadac@unal.edu.co */
-int setThreads(cl_device_id device)
-{
-  int units;
-  cl_uint itemSize;
-  cl_uint groupSize;
-
-  int threads;
-  
-  //CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(buf_ulong), &buf_ulong, NULL));
-  //CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_CACHE_SIZE, sizeof(buf_ulong), &buf_ulong, NULL));
-  //CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(buf_ulong), &buf_ulong, NULL));  
-  //clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(itemSize), &itemSize, NULL);
-  //clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(groupSize), &groupSize, NULL);
-  //CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(units), &units, NULL));
-  
-  return 0; //(units*groupSize);
 }
 
 /* Calculates the maximum number of threads for a given device (maximun with good behaviour) */
