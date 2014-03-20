@@ -39,7 +39,7 @@ LCL_OBJS    := $(LCL_OBJDIR)/ljmd-memhand.o  $(LCL_OBJDIR)/ljmd-povtools.o \
                $(LCL_OBJDIR)/ljmd-trajclass.o $(LCL_OBJDIR)/ljmd-vis.o
 
 
-all: build
+all: objdir build
 
 build: $(LCL_OBJS) $(EXE)
 
@@ -75,8 +75,11 @@ samplevideo: $(EXE) $(XYZFILE)
 	$(EXE) $(XYZFILE)
 	make video
 
+objdir:
+	mkdir -p $(LCL_OBJDIR)
+
 $(LJMDEXE): 
-	cd ..; make; cd vis
+	cd ..; make; cd $(TOP)
 
 video:
 	mencoder mf://*.jpg -mf w=600:h=400:fps=6:type=jpg -ovc lavc\

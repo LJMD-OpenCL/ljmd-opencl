@@ -118,8 +118,8 @@ int main (int argc, char ** argv){
    
    //frame.displayMinMaxCoordinates();
    //frame.displayFrame();
-   //cmdline="rm "+povfname;
-   //system(cmdline.c_str());
+   cmdline="rm "+povfname;
+   system(cmdline.c_str());
    infile.close();
    
    /*
