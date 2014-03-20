@@ -14,7 +14,7 @@ OS_ARCH = $(shell uname -m | sed -e "s/i386/i686/")
 # Flags to detect either a Linux system (linux) or Mac OSX (darwin)
 DARWIN = $(strip $(findstring DARWIN, $(OSUPPER)))
 
-CC=gcc
+CC=icc
 LIB=-lm
 
 ifeq ($(CC),icc)
