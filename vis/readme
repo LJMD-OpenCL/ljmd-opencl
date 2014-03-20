@@ -18,6 +18,11 @@ $make documents
 
 ==========================================
 
+To test the program, try:
+
+$make samplevideo
+
+==========================================
 
 
 For creating videos from the images, one can use mencoder.
