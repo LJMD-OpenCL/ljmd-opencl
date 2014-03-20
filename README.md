@@ -5,7 +5,7 @@ Repository for ICTP School-Lab. Collaborative development of OpenCL version of L
 ##Install our software
 
 ###Download Sources
-In order to get the source code from our repository you need to jave git installed.
+In order to get the source code from our repository you need to have git installed.
 Then just type this in your command line.
 
 	$ git clone https://github.com/LJMD-OpenCL/ljmd-opencl.git
