@@ -14,7 +14,7 @@ OS_ARCH = $(shell uname -m | sed -e "s/i386/i686/")
 # Flags to detect either a Linux system (linux) or Mac OSX (darwin)
 DARWIN = $(strip $(findstring DARWIN, $(OSUPPER)))
 
-CC=icc
+CC=gcc
 LIB=-lm
 
 ifeq ($(CC),icc)
@@ -48,7 +48,7 @@ OPENCL_PATH=/opt/AMDAPP/SDK
 # OS-specific build flags
 ifneq ($(DARWIN),) 
       OPENCL_LIBS= -framework OpenCL
-      INCLUDE_PATH= -I$(INC_DIR) -I/Developer/NVIDIA/CUDA-5.5/include -D__PROFILING
+      INCLUDE_PATH= -I$(INC_DIR) -I/Developer/NVIDIA/CUDA-5.5/include -D__PROFILING -D_USE_FLOAT
 else
   ifeq ($(OS_SIZE),32)
       CCFLAGS   := -m32
