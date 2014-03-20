@@ -1,1 +1,19 @@
-adfs
+This program needs povray >=3.6 to generate snapshots of the trajectory files generated
+by the ljmd-* programs.
+
+For creating videos from the images, one can use mencoder.
+
+The program runs as follows:
+
+./ljmd-vis trajectoryname.xyz
+
+The program reads the trajectory file frame by frame, and at every frame read it calls povray, and generates a snapshot (an image000...jpg file).
+
+After al the trajectory file have been procesed, the set of images can be used to generate a video.
+For instance, with mencoder:
+
+mencoder mf://*.jpg -mf w=600:h=400:fps=6:type=jpg -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o output.avi
+
+will create the video with name "output.avi"
+
+The command is stored in the script callmencoder.
