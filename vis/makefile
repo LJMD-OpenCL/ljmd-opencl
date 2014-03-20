@@ -27,7 +27,9 @@ TOP      = $(shell pwd)
 LCL_OBJDIR = objs
 LCL_DOCDIR = docs
 
-EXE         := ljmd-vis
+EXE         := $(TOP)/ljmd-vis
+LJMDEXE     := ../ljmd-cl
+XYZFILE     := argon_108.xyz
 
 LCL_SOURCES := $(TOP)/ljmd-memhand.cpp $(TOP)/ljmd-povtools.cpp $(TOP)/ljmd-vis.cpp
 
@@ -35,6 +37,7 @@ LCL_HEADERS := $(TOP)/ljmd-memhand.h $(TOP)/ljmd-povtools.h
 
 LCL_OBJS    := $(LCL_OBJDIR)/ljmd-memhand.o  $(LCL_OBJDIR)/ljmd-povtools.o \
                $(LCL_OBJDIR)/ljmd-trajclass.o $(LCL_OBJDIR)/ljmd-vis.o
+
 
 all: build
 
@@ -52,6 +55,11 @@ $(LCL_OBJDIR)/ljmd-trajclass.o: $(TOP)/ljmd-trajclass.cpp $(TOP)/ljmd-trajclass.
 $(LCL_OBJDIR)/ljmd-vis.o: $(TOP)/ljmd-vis.cpp
 	$(CC) $(CCFLAGS) -o $@ -c $<
 
+$(XYZFILE): $(LJMDEXE)
+	@ln -sF ../examples/argon_108.inp argon_108.inp
+	@ln -sF ../examples/argon_108.rest argon_108.rest
+	$(LJMDEXE) cpu 8 < argon_108.inp
+
 $(EXE): $(LCL_OBJS)
 	$(CC) $(LCL_OBJS) -o $(EXE)
 
@@ -61,8 +69,15 @@ documents:
 clean:
 	rm -f $(LCL_OBJDIR)/*.o $(TOP)/*.jpg output.avi $(EXE)
 	rm -rf  $(LCL_DOCDIR)/html/*
+	rm -rf argon*.* *.pov
 
-test: $(EXE)
-	./$(EXE) test.xyz
-	@./callmencoder
+samplevideo: $(EXE) $(XYZFILE)
+	$(EXE) $(XYZFILE)
+	make video
 
+$(LJMDEXE): 
+	cd ..; make; cd vis
+
+video:
+	mencoder mf://*.jpg -mf w=600:h=400:fps=6:type=jpg -ovc lavc\
+        -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o output.avi  >/dev/null 2>&1
