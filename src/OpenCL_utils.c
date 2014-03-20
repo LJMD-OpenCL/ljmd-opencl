@@ -18,9 +18,9 @@
  *      const char * pointer to a static string.
  */
 
- void PrintDeviceShort(cl_device_id );
- void PrintDevice(cl_device_id );
- void setThreads(cl_device_id , int);
+void PrintDeviceShort(cl_device_id );
+void PrintDevice(cl_device_id );
+int setThreads(cl_device_id );
 
 const char * CLErrString(cl_int status) {
    static struct { cl_int code; const char *msg; } error_table[] = {
@@ -187,22 +187,31 @@ void PrintDevice(cl_device_id device)
 
 }
 
+/* Calculates the maximum number of threads for a given device (maximun with good behaviour) */
+/* efposadac@unal.edu.co */
+int getNumberOfUnits(cl_device_id device)
+{
+  int units;
+  
+  CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(units), &units, NULL));
+  
+  printf("UNITS: %d \n", units);
+  
+  return (units);
+}
 
 /* Calculates the maximum number of threads for a given device (maximun with good behaviour) */
 /* efposadac@unal.edu.co */
-void setThreads(cl_device_id device, int nthreads)
+int getMaxWorkGroupSize(cl_device_id device)
 {
-  char buffer[500];
-  cl_uint buf_uint;
-  cl_ulong buf_ulong;
+  int groupSize;
+  
+  clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(groupSize), &groupSize, NULL);
+  clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(groupSize), &groupSize, NULL);
 
-  CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(buf_ulong), &buf_ulong, NULL));
-  CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_CACHE_SIZE, sizeof(buf_ulong), &buf_ulong, NULL));
-  CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(buf_ulong), &buf_ulong, NULL));
-
-  clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(cl_ulong), &buf_uint, NULL);
-  clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(buf_uint), &buf_uint, NULL);
-  CL_STATUS(clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(buf_uint), &buf_uint, NULL));
+  printf("MAX GROUP SIZE: %d \n", groupSize);
+  
+  return groupSize;
 }
 
 typedef struct {
@@ -264,7 +273,7 @@ cl_platform_id FindPlatformWithDeviceType(cl_platform_id * platforms_list, int n
 
 }
 
-cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl_command_queue ** cmdQueues , cl_uint * ngpu, int nthreads ) {
+cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl_command_queue ** cmdQueues , cl_uint * ngpu ) {
 
   cl_int status;
   cl_uint numPlatforms, numDevices;
@@ -272,6 +281,10 @@ cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl
   cl_platform_id platforms_list[100];
   cl_platform_id platform;
   cl_uint u;
+
+  int dev;
+
+  //nthreads = 0;
 
   /* Initialize the Platform. Program considers a single platform. */
   if ( ( status = clGetPlatformIDs( 100, platforms_list, &numPlatforms ) ) != CL_SUCCESS ) {
@@ -283,14 +296,11 @@ cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl
   fprintf( stdout, "Found %d platform(s).\n", numPlatforms );
 #endif
 
-  /*FP: Comented this code because the platforms array is no more dinamyc, is static set to 100
   /*platforms_list = (cl_platform_id *) malloc( sizeof(cl_platform_id) * numPlatforms );
   if ( (clGetPlatformIDs( numPlatforms, platforms_list, NULL ) ) != CL_SUCCESS ) {
     fprintf( stderr, "Unable to enumerate the platforms: %s\n", CLErrString(status));
     exit( 1 );
   }*/
-  /* FP: This is commented because this makes that the program only work with one device, now we are 
-  looking for the best device to improve performance */
 
   /* *ngpu = 1; //FP: This means that the program always uses ONE device! Procesor or GPU
   if( !strncmp( device_type, "gpu", 3 ) ) {
@@ -311,61 +321,56 @@ cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl
 
   free(platforms_list); */
 
-  *ngpu = 0; // EF: Total number of devices!
+  *ngpu = 0; // FP: Total number of devices!
+  dev = 0; // FP: Chosen platform
   int i;
   for (i=0; i<numPlatforms; i++){
-
     platform = platforms_list[i];
-
 #ifdef __DEBUG
-
     PrintPlatform( platform );
-    fprintf(stderr, "******* \n ");
-  
+    fprintf( stdout, "******* \n ");
 #endif
-
-    /* Initialize the Devices */
-    if ((status = clGetDeviceIDs( platform , CL_DEVICE_TYPE_GPU, 100, devices, &numDevices ) ) != CL_SUCCESS) {
-      fprintf( stderr, "platform[%p]: Unable to query the number of devices: %s\n", platform, CLErrString( status ) );
-      exit( 1 );
-    }
-
-    /* Choose the right device */
-    if (numDevices >= 1){
-      device_kind = CL_DEVICE_TYPE_GPU;  
-      fprintf( stdout, "\nUSING GPU\n" );
-    }
-    else{
-      device_kind = CL_DEVICE_TYPE_CPU;
-      fprintf( stdout, "\nUSING CPU\n" );
-    }
-
-    //TODO Choose the better between CPU and GPU
-
-    if ((status = clGetDeviceIDs( platform , device_kind, 100, devices, &numDevices ) ) != CL_SUCCESS) {
-      fprintf( stderr, "platform[%p]: Unable to query the number of devices: %s\n", platform, CLErrString( status ) );
-      exit( 1 );
-    }
-
-    int j;
-    for (j = 0; j < numDevices; ++j){    
-#ifdef __DEBUG
-      fprintf( stdout, "platform[%p]: Found a device.\n", platform );
-      PrintDevice(devices[j]);      
-#endif
-      setThreads(devices[j], nthreads);
-      *ngpu+=1;
+    /* Initialize the Device */
+    device_kind = CL_DEVICE_TYPE_CPU;
+    if ((status = clGetDeviceIDs( platform , CL_DEVICE_TYPE_GPU, 100, devices, &numDevices ) ) == CL_SUCCESS) {
+      device_kind = CL_DEVICE_TYPE_GPU;
+      dev = i;
     }
   }
+  /* Choosing the right device */
+  if (device_kind == CL_DEVICE_TYPE_GPU){
+    fprintf( stdout, "\nUSING GPU\n" );
+  }
+  else{
+    fprintf( stdout, "\nUSING CPU\n" );
+  }
 
-  //allocate memory for devices, contexts and command queues
-  fprintf(stderr, "Total Number of devices %d \n", (unsigned int)*ngpu);
+  //TODO Choose the best among CPU or GPU
+
+  if ((status = clGetDeviceIDs( platforms_list[dev] , device_kind, 100, devices, &numDevices ) ) != CL_SUCCESS) {
+    fprintf( stderr, "platform[%p]: Unable to query the number of devices: %s\n", platform, CLErrString( status ) );
+    exit( 1 );
+  }
+  int j;
+  for (j = 0; j < numDevices; ++j){    
+#ifdef __DEBUG
+    fprintf( stdout, "platform[%p]: Found a device.\n", platform );
+    PrintDevice( devices[j] );      
+#endif
+    getMaxWorkGroupSize(devices[j]);
+    *ngpu=1;
+  }
   
+#ifdef __DEBUG
+  fprintf( stdout, "******* \n ");
+  fprintf(stdout, "Total Number of devices %d \n", (unsigned int)*ngpu);
+#endif
+  //allocate memory for devices, contexts and command queues
   /*if (!(*devices = (cl_device_id *) malloc(sizeof(cl_device_id)*(*ngpu)))) {
-   fprintf ( stderr, "unable to allocate memory for %u device ids\n", *ngpu);
-   exit( 1 );
-  }*/
-
+    fprintf ( stderr, "unable to allocate memory for %u device ids\n", *ngpu);
+    exit( 1 );
+    }*/
+  
   if (!(*contexts = (cl_context *) malloc(sizeof(cl_context)*(*ngpu)))) {
     fprintf ( stderr, "unable to allocate memory for %u contexts\n", *ngpu);
     exit( 1 );
@@ -383,7 +388,7 @@ cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl
   //create 1 context per gpu (or cpu); supposed to be faster than having
   //one context for everything
   for(u=0;u<*ngpu;u++) {
-    (*contexts)[u] = clCreateContext( NULL, 1, devices, NULL, NULL, &status );
+    (*contexts)[u] = clCreateContext( NULL, 1, &devices[u], NULL, NULL, &status );
   
     if ( status != CL_SUCCESS ) {
       fprintf ( stderr, "platform[%p]: Unable to init OpenCL context: %s\n", platform, CLErrString( status ) );
