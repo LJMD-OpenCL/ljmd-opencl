@@ -14,7 +14,7 @@ OS_ARCH = $(shell uname -m | sed -e "s/i386/i686/")
 # Flags to detect either a Linux system (linux) or Mac OSX (darwin)
 DARWIN = $(strip $(findstring DARWIN, $(OSUPPER)))
 
-CC=gcc
+CC=icc
 LIB=-lm
 
 ifeq ($(CC),icc)
@@ -37,7 +37,7 @@ ORI_SRC_DIC=$(TEST_DIR)/src
 
 #Files
 EXE=ljmd-cl
-CODE_FILES	= ljmd-cl.c OpenCL_utils.c
+CODE_FILES	= OpenCL_utils.c ljmd-cl.c
 HEADER_FILES	= OpenCL_utils.h OpenCL_data.h opencl_kernels_as_string.h
 
 OBJECTS	=$(patsubst %,$(OBJ_DIR)/%,$(CODE_FILES:.c=.o))

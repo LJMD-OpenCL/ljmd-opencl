@@ -24,7 +24,7 @@ double second();
 
 #define STRINGSIZE 2048
 
-cl_int InitOpenCLEnvironment( char * device_type, cl_device_id ** devices, cl_context ** contexts, cl_command_queue ** cmdQueues , cl_uint * ngpu );
+cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl_command_queue ** cmdQueues , cl_uint * ngpu, int );
 
 char * source2string( char * filename );
 

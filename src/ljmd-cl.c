@@ -92,8 +92,8 @@ static int get_me_a_line(FILE *fp, char *buf)
 
 void PrintUsageAndExit() {
     fprintf( stderr, "\nError. Run the program as follow: ");
-    fprintf( stderr, "\n./ljmd-cl.x device [thread-number] < input ");
-    fprintf( stderr, "\ndevice = cpu | gpu \n\n" );
+    fprintf( stderr, "\n./ljmd-cl.x -i < input \n\n");
+    //fprintf( stderr, "\ndevice = cpu | gpu \n\n" );
     exit(1);
 }
 
@@ -118,7 +118,7 @@ static void output(mdsys_t *sys, FILE *erg, FILE *traj)
 int main(int argc, char **argv)
 {
   /*OpenCL variables */
-  cl_device_id *devices=NULL;
+  cl_device_id devices[100];
   cl_device_type device_type; /*to test if we are on cpu or gpu*/
   cl_context *contexts=NULL;
   cl_command_queue *cmdQueues=NULL;
@@ -154,24 +154,31 @@ int main(int argc, char **argv)
 
   /* handling the command line arguments */
   switch (argc) {
-      case 2: /* only the cpu/gpu argument was passed, setting default nthreads */
-	      if( !strcmp( argv[1], "cpu" ) ) nthreads = 16;
+      case 2:
+        if( !strcmp( argv[1], " " ) ){
+          PrintUsageAndExit();
+        }
+        break;
+      //case 2: /* only the cpu/gpu argument was passed, setting default nthreads */
+	      /*if( !strcmp( argv[1], "cpu" ) ) nthreads = 16;
 	      else nthreads = 1024;
-	      break;
-      case 3: /* both the device type (cpu/gpu) and the number of threads were passed */
-	      nthreads = strtol(argv[2],NULL,10);
+	      break;*/
+      //case 3: /* both the device type (cpu/gpu) and the number of threads were passed */
+	      /*nthreads = strtol(argv[2],NULL,10);
 	      if( nthreads<0 ) {
 		      fprintf( stderr, "\n. The number of threads must be more than 1.\n");
 		      PrintUsageAndExit();
 	      }
-	      break;
+	      break;*/
       default:
 	      PrintUsageAndExit();
 	      break;
   }
 
+  nthreads = 1024;
+
   /* Initialize the OpenCL environment */
-  if( InitOpenCLEnvironment( argv[1], &devices, &contexts, &cmdQueues, &ndevices ) != CL_SUCCESS ){
+  if( InitOpenCLEnvironment( devices, &contexts, &cmdQueues, &ndevices, nthreads) != CL_SUCCESS ){
     fprintf( stderr, "Program Error! OpenCL Environment was not initialized correctly.\n" );
     return 4;
   }
@@ -637,7 +644,7 @@ fprintf( stdout, "\n\nTime of execution = %.3g (seconds)\n", (t2 - t1) );
   free(cl_sys);
   free(cmdQueues);
   free(contexts);
-  free(devices);
+  //free(devices);
 
   return 0;
 }
