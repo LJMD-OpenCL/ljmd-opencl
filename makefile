@@ -27,9 +27,9 @@ OBJECTS	=$(patsubst %,$(OBJ_DIR)/%,$(CODE_FILES:.c=.o))
 INCLUDES=$(patsubst %,$(INC_DIR)/%,$(HEADER_FILES))
 
 #Compilation Flags
-OPENCL_PATH=/opt/intel/opencl-1.2-3.0.56860
-OPENCL_LIBS=-L$(OPENCL_PATH)/lib64 -lOpenCL
-INCLUDE_PATH= -I$(INC_DIR) -I/usr/include/x86_64-linux-gnu/ -I$(OPENCL_PATH)/include -D__PROFILING
+#OPENCL_PATH=/opt/intel/opencl-1.2-3.0.56860
+OPENCL_LIBS=-framework opencl
+INCLUDE_PATH= -I $(INC_DIR) -D__PROFILING -D__DEBUG -D_USE_FLOAT
 OPENMP=-openmp
 OPT= -O3 $(OPENMP) -Wall -D__DEBUG -D_USE_FLOAT
 

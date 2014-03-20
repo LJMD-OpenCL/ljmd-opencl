@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "CL/cl.h"
+#include "OpenCL/opencl.h"
 #include <time.h>
 #include <sys/time.h>
 #include <ctype.h>
