@@ -135,7 +135,7 @@ int main(int argc, char **argv)
   cl_int status;
   cl_uint ndevices;
 
-  int nprint, i, nthreads = 0;
+  int nprint, i, workSize=1024, nthreads = 0;
   char restfile[BLEN], trajfile[BLEN], ergfile[BLEN], line[BLEN];
   FILE *fp,*traj,*erg;
   mdsys_t sys;
@@ -174,8 +174,6 @@ int main(int argc, char **argv)
 	      PrintUsageAndExit();
 	      break;
   }
-  
-  //nthreads = 1024;
     
    /* Initialize the OpenCL environment */
   if( InitOpenCLEnvironment( devices, &contexts, &cmdQueues, &ndevices) != CL_SUCCESS ){
@@ -226,8 +224,9 @@ int main(int argc, char **argv)
   nprint=atoi(line);
 
   /* Calculate the number of threads */
-  nthreads = (sys.natoms*9);
-  nthreads = 100000; nthreads / getNumberOfUnits(devices[0]);    
+  nthreads = sys.natoms*6;
+  //nthreads /= getNumberOfUnits(devices[0]);
+
   fprintf(stdout, "Threads %d \n", nthreads);
 
   /* allocate memory */

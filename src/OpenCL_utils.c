@@ -323,13 +323,16 @@ cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl
 
   *ngpu = 0; // FP: Total number of devices!
   dev = 0; // FP: Chosen platform
+
   int i;
   for (i=0; i<numPlatforms; i++){
     platform = platforms_list[i];
+
 #ifdef __DEBUG
     PrintPlatform( platform );
     fprintf( stdout, "******* \n ");
 #endif
+
     /* Initialize the Device */
     device_kind = CL_DEVICE_TYPE_CPU;
     if ((status = clGetDeviceIDs( platform , CL_DEVICE_TYPE_GPU, 100, devices, &numDevices ) ) == CL_SUCCESS) {
@@ -337,10 +340,12 @@ cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl
       dev = i;
     }
   }
+
   /* Choosing the right device */
   if (device_kind == CL_DEVICE_TYPE_GPU){
     fprintf( stdout, "\nUSING GPU\n" );
   }
+
   else{
     fprintf( stdout, "\nUSING CPU\n" );
   }
@@ -351,14 +356,14 @@ cl_int InitOpenCLEnvironment( cl_device_id * devices, cl_context ** contexts, cl
     fprintf( stderr, "platform[%p]: Unable to query the number of devices: %s\n", platform, CLErrString( status ) );
     exit( 1 );
   }
+
   int j;
   for (j = 0; j < numDevices; ++j){    
 #ifdef __DEBUG
     fprintf( stdout, "platform[%p]: Found a device.\n", platform );
     PrintDevice( devices[j] );      
 #endif
-    getMaxWorkGroupSize(devices[j]);
-    *ngpu=1;
+    *ngpu+=1;
   }
   
 #ifdef __DEBUG
