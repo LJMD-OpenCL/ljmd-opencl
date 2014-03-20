@@ -14,7 +14,7 @@ OS_ARCH = $(shell uname -m | sed -e "s/i386/i686/")
 # Flags to detect either a Linux system (linux) or Mac OSX (darwin)
 DARWIN = $(strip $(findstring DARWIN, $(OSUPPER)))
 
-CC=gcc
+CC=icc
 LIB=-lm
 
 ifeq ($(CC),icc)
@@ -37,18 +37,18 @@ ORI_SRC_DIC=$(TEST_DIR)/src
 
 #Files
 EXE=ljmd-cl
-CODE_FILES	= ljmd-cl.c OpenCL_utils.c
+CODE_FILES	= OpenCL_utils.c ljmd-cl.c
 HEADER_FILES	= OpenCL_utils.h OpenCL_data.h opencl_kernels_as_string.h
 
 OBJECTS	=$(patsubst %,$(OBJ_DIR)/%,$(CODE_FILES:.c=.o))
 INCLUDES=$(patsubst %,$(INC_DIR)/%,$(HEADER_FILES))
 
-OPENCL_PATH=/opt/AMDAPP/SDK
+OPENCL_PATH=/opt/intel/opencl-1.2-3.0.56860/
 
 # OS-specific build flags
 ifneq ($(DARWIN),) 
       OPENCL_LIBS= -framework OpenCL
-      INCLUDE_PATH= -I$(INC_DIR) -I/Developer/NVIDIA/CUDA-5.5/include -D__PROFILING
+      INCLUDE_PATH= -I$(INC_DIR) -I/Developer/NVIDIA/CUDA-5.5/include -D__PROFILING -D_USE_FLOAT
 else
   ifeq ($(OS_SIZE),32)
       CCFLAGS   := -m32
