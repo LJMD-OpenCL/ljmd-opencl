@@ -43,7 +43,7 @@ HEADER_FILES	= OpenCL_utils.h OpenCL_data.h opencl_kernels_as_string.h
 OBJECTS	=$(patsubst %,$(OBJ_DIR)/%,$(CODE_FILES:.c=.o))
 INCLUDES=$(patsubst %,$(INC_DIR)/%,$(HEADER_FILES))
 
-OPENCL_PATH=/opt/AMDAPP/SDK
+OPENCL_PATH=/opt/intel/opencl-1.2-3.0.56860/
 
 # OS-specific build flags
 ifneq ($(DARWIN),) 

@@ -174,11 +174,11 @@ int main(int argc, char **argv)
 	      PrintUsageAndExit();
 	      break;
   }
-
-  nthreads = 1024;
-
-  /* Initialize the OpenCL environment */
-  if( InitOpenCLEnvironment( devices, &contexts, &cmdQueues, &ndevices, nthreads) != CL_SUCCESS ){
+  
+  //nthreads = 1024;
+    
+   /* Initialize the OpenCL environment */
+  if( InitOpenCLEnvironment( devices, &contexts, &cmdQueues, &ndevices) != CL_SUCCESS ){
     fprintf( stderr, "Program Error! OpenCL Environment was not initialized correctly.\n" );
     return 4;
   }
@@ -225,6 +225,10 @@ int main(int argc, char **argv)
   if(get_me_a_line(stdin,line)) return 1;
   nprint=atoi(line);
 
+  /* Calculate the number of threads */
+  nthreads = (sys.natoms*9);
+  nthreads = 100000; nthreads / getNumberOfUnits(devices[0]);    
+  fprintf(stdout, "Threads %d \n", nthreads);
 
   /* allocate memory */
   for(u = 0; u < ndevices; u++) {
