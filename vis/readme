@@ -1,0 +1,42 @@
+This program needs povray >=3.6 to generate snapshots of the trajectory files generated
+by the ljmd-* programs.
+
+
+=========================================
+
+The program can be compiled by using 
+
+$make
+
+=========================================
+
+The partial documentation of the program can be generated via
+doxygen, with:
+
+$make documents
+
+
+==========================================
+
+To test the program, try:
+
+$make samplevideo
+
+==========================================
+
+
+For creating videos from the images, one can use mencoder.
+
+The program runs as follows:
+
+$./ljmd-vis trajectoryname.xyz
+$make video
+
+The program reads the trajectory file frame by frame, and at every frame read it calls povray, and generates a snapshot (an image000...jpg file). Then, by executing "$make video", a call to mencoder will be made, which will create the file "output.avi"
+
+Alternately to executing "make video", one can directly call mencoder, for instance:
+
+mencoder mf://*.jpg -mf w=600:h=400:fps=6:type=jpg -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o output.avi
+
+will create the video with name "output.avi"
+
