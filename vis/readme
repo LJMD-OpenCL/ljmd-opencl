@@ -1,6 +1,25 @@
 This program needs povray >=3.6 to generate snapshots of the trajectory files generated
 by the ljmd-* programs.
 
+
+=========================================
+
+The program can be compiled by using 
+
+$make
+
+=========================================
+
+The partial documentation of the program can be generated via
+doxygen, with:
+
+$make documents
+
+
+==========================================
+
+
+
 For creating videos from the images, one can use mencoder.
 
 The program runs as follows:
