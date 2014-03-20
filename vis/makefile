@@ -71,7 +71,7 @@ clean:
 	rm -rf  $(LCL_DOCDIR)/html/*
 	rm -rf argon*.* *.pov
 
-samplevideo: $(EXE) $(XYZFILE)
+samplevideo: objdir $(EXE) $(XYZFILE)
 	$(EXE) $(XYZFILE)
 	make video
 
